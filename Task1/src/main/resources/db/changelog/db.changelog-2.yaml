@@ -27,6 +27,7 @@ databaseChangeLog:
                   type: varchar(255)
                   constraints:
                     nullable: false
+                    checkConstraint: "domain IN ('TECHNOLOGY', 'HEALTHCARE', 'FINANCE', 'EDUCATION', 'RETAIL', 'MANUFACTURING')"
               - column:
                   name: created_at
                   type: timestamp with time zone

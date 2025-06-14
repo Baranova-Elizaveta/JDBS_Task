@@ -6,7 +6,7 @@ services:
     container_name: postgres
     restart: always
     ports:
-      - "5433:5432"  # внешний:внутренний
+      - "5433:5432"
     environment:
       POSTGRES_USER: admin
       POSTGRES_PASSWORD: admin

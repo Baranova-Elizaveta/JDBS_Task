@@ -1,11 +1,11 @@
 databaseChangeLog:
   - changeSet:
-      id: create-table-employees
+      id: create-employee-projects-table
       author: elizaveta
-      comment: Create employees table
+      comment: Create employee-projects relation table
       changes:
         - createTable:
-            tableName: employees
+            tableName: employee-projects
             columns:
               - column:
                   name: id
@@ -15,22 +15,23 @@ databaseChangeLog:
                     primaryKey: true
                     nullable: false
               - column:
-                  name: full-name
-                  type: varchar(255)
+                  name: employee_id
+                  type: int
                   constraints:
                     nullable: false
               - column:
-                  name: email
-                  type: varchar(255)
+                  name: project_id
+                  type: int
                   constraints:
                     nullable: false
-                    unique: true
-                    checkConstraint: "email ~* '^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$'"
               - column:
                   name: start_date_of_work
                   type: date
                   constraints:
                     nullable: false
+              - column:
+                  name: end_date_of_work
+                  type: date
               - column:
                   name: created_at
                   type: timestamp with time zone

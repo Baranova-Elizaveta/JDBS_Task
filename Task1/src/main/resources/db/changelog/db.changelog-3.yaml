@@ -5,7 +5,7 @@ databaseChangeLog:
       comment: Create employee-projects relation table
       changes:
         - createTable:
-            tableName: employee-projects
+            tableName: employee_projects
             columns:
               - column:
                   name: id
@@ -38,10 +38,33 @@ databaseChangeLog:
                   constraints:
                     nullable: false
               - column:
-                  name: updated-at
+                  name: updated_at
                   type: timestamp with time zone
                   constraints:
                     nullable: false
               - column:
                   name: last_sync_at
                   type: timestamp with time zone
+
+        - addForeignKeyConstraint:
+            constraintName: fk_employee_projects_employee
+            baseTableName: employee_projects
+            baseColumnNames: employee_id
+            referencedTableName: employees
+            referencedColumnNames: id
+            onDelete: CASCADE
+            onUpdate: CASCADE
+
+        - addForeignKeyConstraint:
+            constraintName: fk_employee_projects_project
+            baseTableName: employee_projects
+            baseColumnNames: project_id
+            referencedTableName: projects
+            referencedColumnNames: id
+            onDelete: CASCADE
+            onUpdate: CASCADE
+
+        - addUniqueConstraint:
+            constraintName: uk_employee_project
+            tableName: employee_projects
+            columnNames: employee_id, project_id

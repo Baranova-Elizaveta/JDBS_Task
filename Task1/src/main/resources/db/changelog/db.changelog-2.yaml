@@ -1,5 +1,13 @@
 databaseChangeLog:
   - changeSet:
+      id: create-enum-domain
+      author: elizaveta
+      comment: Create domain enum type
+      changes:
+        - sql:
+            sql: "CREATE TYPE domain_enum AS ENUM ('TECHNOLOGY', 'HEALTHCARE', 'FINANCE', 'EDUCATION', 'RETAIL', 'MANUFACTURING');"
+
+  - changeSet:
       id: create-table-projects
       author: elizaveta
       comment: Create projects table
@@ -24,17 +32,16 @@ databaseChangeLog:
                   type: text
               - column:
                   name: domain
-                  type: varchar(255)
+                  type: domain_enum
                   constraints:
                     nullable: false
-                    checkConstraint: "domain IN ('TECHNOLOGY', 'HEALTHCARE', 'FINANCE', 'EDUCATION', 'RETAIL', 'MANUFACTURING')"
               - column:
                   name: created_at
                   type: timestamp with time zone
                   constraints:
                     nullable: false
               - column:
-                  name: updated-at
+                  name: updated_at
                   type: timestamp with time zone
                   constraints:
                     nullable: false

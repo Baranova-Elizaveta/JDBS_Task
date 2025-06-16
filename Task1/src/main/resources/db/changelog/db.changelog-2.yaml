@@ -5,7 +5,7 @@ databaseChangeLog:
       comment: Create domain enum type
       changes:
         - sql:
-            sql: "CREATE TYPE domain_enum AS ENUM ('TECHNOLOGY', 'HEALTHCARE', 'FINANCE', 'EDUCATION', 'RETAIL', 'MANUFACTURING');"
+            sql: "CREATE TYPE domain AS ENUM ('TECHNOLOGY', 'HEALTHCARE', 'FINANCE', 'EDUCATION', 'RETAIL', 'MANUFACTURING');"
 
   - changeSet:
       id: create-table-projects
@@ -13,7 +13,7 @@ databaseChangeLog:
       comment: Create projects table
       changes:
         - createTable:
-            tableName: projects
+            tableName: project
             columns:
               - column:
                   name: id
@@ -21,7 +21,6 @@ databaseChangeLog:
                   autoIncrement: true
                   constraints:
                     primaryKey: true
-                    nullable: false
               - column:
                   name: name
                   type: varchar(255)

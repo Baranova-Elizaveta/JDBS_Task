@@ -31,9 +31,8 @@ databaseChangeLog:
                   type: text
               - column:
                   name: domain
-                  type: domain_enum
-                  constraints:
-                    nullable: false
+                  type: domain
+                  defaultValue: "TECHNOLOGY"
               - column:
                   name: created_at
                   type: timestamp with time zone

@@ -59,7 +59,7 @@ databaseChangeLog:
             constraintName: fk_employee_projects_project
             baseTableName: employee_projects
             baseColumnNames: project_id
-            referencedTableName: projects
+            referencedTableName: project
             referencedColumnNames: id
             onDelete: CASCADE
             onUpdate: CASCADE

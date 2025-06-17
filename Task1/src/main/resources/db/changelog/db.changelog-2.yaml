@@ -1,0 +1,46 @@
+databaseChangeLog:
+  - changeSet:
+      id: create-enum-domain
+      author: elizaveta
+      comment: Create domain enum type
+      changes:
+        - sql:
+            sql: "CREATE TYPE domain AS ENUM ('TECHNOLOGY', 'HEALTHCARE', 'FINANCE', 'EDUCATION', 'RETAIL', 'MANUFACTURING');"
+
+  - changeSet:
+      id: create-table-projects
+      author: elizaveta
+      comment: Create projects table
+      changes:
+        - createTable:
+            tableName: project
+            columns:
+              - column:
+                  name: id
+                  type: int
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+              - column:
+                  name: name
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: description
+                  type: text
+              - column:
+                  name: domain
+                  type: domain
+                  defaultValue: "TECHNOLOGY"
+              - column:
+                  name: created_at
+                  type: timestamp with time zone
+                  defaultValue: now()
+              - column:
+                  name: updated_at
+                  type: timestamp with time zone
+                  defaultValue: now()
+              - column:
+                  name: last_sync_at
+                  type: timestamp with time zone

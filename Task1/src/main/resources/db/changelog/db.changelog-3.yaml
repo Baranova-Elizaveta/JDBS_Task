@@ -1,0 +1,68 @@
+databaseChangeLog:
+  - changeSet:
+      id: create-employee-projects-table
+      author: elizaveta
+      comment: Create employee-projects relation table
+      changes:
+        - createTable:
+            tableName: employee_projects
+            columns:
+              - column:
+                  name: id
+                  type: int
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: employee_id
+                  type: int
+                  constraints:
+                    nullable: false
+              - column:
+                  name: project_id
+                  type: int
+                  constraints:
+                    nullable: false
+              - column:
+                  name: start_date_of_work
+                  type: date
+                  constraints:
+                    nullable: false
+              - column:
+                  name: end_date_of_work
+                  type: date
+              - column:
+                  name: created_at
+                  type: timestamp with time zone
+                  defaultValue: now()
+              - column:
+                  name: updated_at
+                  type: timestamp with time zone
+                  defaultValue: now()
+              - column:
+                  name: last_sync_at
+                  type: timestamp with time zone
+
+        - addForeignKeyConstraint:
+            constraintName: fk_employee_projects_employee
+            baseTableName: employee_projects
+            baseColumnNames: employee_id
+            referencedTableName: employees
+            referencedColumnNames: id
+            onDelete: CASCADE
+            onUpdate: CASCADE
+
+        - addForeignKeyConstraint:
+            constraintName: fk_employee_projects_project
+            baseTableName: employee_projects
+            baseColumnNames: project_id
+            referencedTableName: project
+            referencedColumnNames: id
+            onDelete: CASCADE
+            onUpdate: CASCADE
+
+        - addUniqueConstraint:
+            constraintName: uk_employee_project
+            tableName: employee_projects
+            columnNames: employee_id, project_id

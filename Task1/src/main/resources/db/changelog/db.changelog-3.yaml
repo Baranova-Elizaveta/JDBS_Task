@@ -35,13 +35,11 @@ databaseChangeLog:
               - column:
                   name: created_at
                   type: timestamp with time zone
-                  constraints:
-                    nullable: false
+                  defaultValue: now()
               - column:
                   name: updated_at
                   type: timestamp with time zone
-                  constraints:
-                    nullable: false
+                  defaultValue: now()
               - column:
                   name: last_sync_at
                   type: timestamp with time zone

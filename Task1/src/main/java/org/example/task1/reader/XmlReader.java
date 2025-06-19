@@ -4,9 +4,9 @@ import org.example.task1.model.XmlEmployee;
 import org.example.task1.model.XmlEmployees;
 import org.example.task1.model.XmlProject;
 import org.example.task1.model.XmlProjects;
-import org.springframework.stereotype.Service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
 import org.xml.sax.SAXException;
 
 import javax.xml.XMLConstants;
@@ -19,24 +19,23 @@ import java.io.File;
 import java.util.List;
 import java.util.Optional;
 
-@Service
-public class XmlReaderService {
+@Component
+public class XmlReader {
 
-    private static final Logger logger = LoggerFactory.getLogger(XmlReaderService.class);
+    private static final Logger logger = LoggerFactory.getLogger(XmlReader.class);
 
     public <T> Optional<T> read(String filePath, Class<T> clazz, String schemaPath) {
         try {
             File file = new File(filePath);
             if (!file.exists()) {
-                logger.warn("XML файл не найден: {}", filePath);
+                logger.warn("XML file not found: {}", filePath);
                 return Optional.empty();
             }
 
             if (!file.canRead()) {
-                logger.error("Нет прав на чтение XML файла: {}", filePath);
+                logger.error("No rights to read the XML file: {}", filePath);
                 return Optional.empty();
             }
-
             JAXBContext jaxbContext = JAXBContext.newInstance(clazz);
             Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
 
@@ -46,29 +45,31 @@ public class XmlReaderService {
                     SchemaFactory schemaFactory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
                     Schema schema = schemaFactory.newSchema(schemaFile);
                     unmarshaller.setSchema(schema);
-                    logger.debug("Применена XSD схема для валидации: {}", schemaPath);
+                    logger.debug("The XSD scheme has been applied for validation: {}", schemaPath);
                 } else {
-                    logger.warn("XSD схема не найдена: {}, валидация пропущена", schemaPath);
+                    logger.warn("XSD schema not found: {}, validation skipped", schemaPath);
                 }
             }
+
 
             @SuppressWarnings("unchecked")
             T result = (T) unmarshaller.unmarshal(file);
 
-            logger.info("Успешно прочитан XML файл: {} как {}", filePath, clazz.getSimpleName());
+            logger.info("XML file read successfully: {} as {}", filePath, clazz.getSimpleName());
             return Optional.of(result);
 
         } catch (SAXException e) {
-            logger.error("Ошибка валидации XSD для файла: {}", filePath, e);
+            logger.error("XSD validation error for the file: {}", filePath, e);
             return Optional.empty();
         } catch (JAXBException e) {
-            logger.error("Ошибка JAXB при чтении XML файла: {}", filePath, e);
+            logger.error("JAXB error when reading an XML file: {}", filePath, e);
             return Optional.empty();
         } catch (Exception e) {
-            logger.error("Общая ошибка при чтении XML файла: {}", filePath, e);
+            logger.error("A common error when reading an XML file: {}", filePath, e);
             return Optional.empty();
         }
     }
+
     public <T> Optional<T> read(String filePath, Class<T> clazz) {
         return read(filePath, clazz, null);
     }
@@ -83,6 +84,7 @@ public class XmlReaderService {
         return xmlProjects.map(XmlProjects::getProjects);
     }
 
+
     public boolean isFileExists(String filePath) {
         return new File(filePath).exists();
     }
@@ -92,9 +94,10 @@ public class XmlReaderService {
         if (file.exists()) {
             return Optional.of(file.lastModified());
         }
-        logger.debug("Файл не существует для получения времени модификации: {}", filePath);
+        logger.debug("The file does not exist to get the modification time.: {}", filePath);
         return Optional.empty();
     }
+
 
     public Optional<Long> getFileSize(String filePath) {
         File file = new File(filePath);
@@ -108,6 +111,7 @@ public class XmlReaderService {
         File file = new File(filePath);
         return file.exists() && file.canRead();
     }
+
 
     public boolean isValidEmployeesXml(String filePath) {
         return read(filePath, XmlEmployees.class, "employees.xsd").isPresent();

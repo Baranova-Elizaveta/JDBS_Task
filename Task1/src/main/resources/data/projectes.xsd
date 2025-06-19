@@ -1,17 +1,72 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+    <xs:simpleType name="domainType">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="TECHNOLOGY"/>
+            <xs:enumeration value="HEALTHCARE"/>
+            <xs:enumeration value="FINANCE"/>
+            <xs:enumeration value="EDUCATION"/>
+            <xs:enumeration value="RETAIL"/>
+            <xs:enumeration value="MANUFACTURING"/>
+        </xs:restriction>
+    </xs:simpleType>
+
     <xs:element name="projects">
         <xs:complexType>
             <xs:sequence>
                 <xs:element name="project" minOccurs="0" maxOccurs="unbounded">
                     <xs:complexType>
                         <xs:sequence>
-                            <xs:element name="name" type="xs:string"/>
+                            <xs:element name="name" type="xs:string">
+                                <xs:annotation>
+                                    <xs:documentation>Project name (required, max 255 characters)</xs:documentation>
+                                </xs:annotation>
+                            </xs:element>
+
+                            <xs:element name="description" type="xs:string" minOccurs="0">
+                                <xs:annotation>
+                                    <xs:documentation>Project description (optional text field)</xs:documentation>
+                                </xs:annotation>
+                            </xs:element>
+
+                            <xs:element name="domain" type="domainType" default="TECHNOLOGY" minOccurs="0">
+                                <xs:annotation>
+                                    <xs:documentation>Project domain (defaults to TECHNOLOGY)</xs:documentation>
+                                </xs:annotation>
+                            </xs:element>
+
+                            <xs:element name="created_at" type="xs:dateTime" minOccurs="0">
+                                <xs:annotation>
+                                    <xs:documentation>Creation timestamp (auto-generated if not provided)</xs:documentation>
+                                </xs:annotation>
+                            </xs:element>
+
+                            <xs:element name="updated_at" type="xs:dateTime" minOccurs="0">
+                                <xs:annotation>
+                                    <xs:documentation>Last update timestamp (auto-generated if not provided)</xs:documentation>
+                                </xs:annotation>
+                            </xs:element>
+
+                            <xs:element name="last_sync_at" type="xs:dateTime" minOccurs="0">
+                                <xs:annotation>
+                                    <xs:documentation>Last synchronization timestamp (optional)</xs:documentation>
+                                </xs:annotation>
+                            </xs:element>
                         </xs:sequence>
-                        <xs:attribute name="id" type="xs:positiveInteger" use="required"/>
+
+                        <xs:attribute name="id" type="xs:positiveInteger" use="required">
+                            <xs:annotation>
+                                <xs:documentation>Unique project identifier (primary key)</xs:documentation>
+                            </xs:annotation>
+                        </xs:attribute>
                     </xs:complexType>
                 </xs:element>
             </xs:sequence>
         </xs:complexType>
+
+        <xs:unique name="uniqueProjectId">
+            <xs:selector xpath="project"/>
+            <xs:field xpath="@id"/>
+        </xs:unique>
     </xs:element>
 </xs:schema>

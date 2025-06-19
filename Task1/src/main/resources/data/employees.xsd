@@ -1,18 +1,55 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+
+    <xs:simpleType name="emailType">
+        <xs:restriction base="xs:string">
+            <xs:pattern value="[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <xs:simpleType name="roleType">
+        <xs:restriction base="xs:string">
+            <xs:minLength value="1"/>
+            <xs:maxLength value="255"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <xs:simpleType name="nameType">
+        <xs:restriction base="xs:string">
+            <xs:minLength value="1"/>
+            <xs:maxLength value="255"/>
+        </xs:restriction>
+    </xs:simpleType>
+
     <xs:element name="employees">
         <xs:complexType>
             <xs:sequence>
                 <xs:element name="employee" minOccurs="0" maxOccurs="unbounded">
                     <xs:complexType>
                         <xs:sequence>
-                            <xs:element name="name" type="xs:string"/>
-                            <xs:element name="role" type="xs:string"/>
+                            <xs:element name="full_name" type="nameType"/>
+                            <xs:element name="email" type="emailType"/>
+                            <xs:element name="role" type="roleType"/>
+                            <xs:element name="start_date_of_work" type="xs:date"/>
+                            <xs:element name="created_at" type="xs:dateTime" minOccurs="0"/>
+
+                            <xs:element name="updated_at" type="xs:dateTime" minOccurs="0"/>
+
+                            <xs:element name="last_sync_at" type="xs:dateTime" minOccurs="0"/>
                         </xs:sequence>
                         <xs:attribute name="id" type="xs:positiveInteger" use="required"/>
                     </xs:complexType>
                 </xs:element>
             </xs:sequence>
         </xs:complexType>
+        <xs:unique name="uniqueEmail">
+            <xs:selector xpath="employee"/>
+            <xs:field xpath="email"/>
+        </xs:unique>
+
+        <xs:unique name="uniqueId">
+            <xs:selector xpath="employee"/>
+            <xs:field xpath="@id"/>
+        </xs:unique>
     </xs:element>
 </xs:schema>

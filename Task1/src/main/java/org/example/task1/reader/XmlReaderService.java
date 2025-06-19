@@ -1,6 +1,5 @@
 package org.example.task1.reader;
 
-
 import org.example.task1.model.XmlEmployee;
 import org.example.task1.model.XmlEmployees;
 import org.example.task1.model.XmlProject;
@@ -25,81 +24,63 @@ public class XmlReaderService {
 
     private static final Logger logger = LoggerFactory.getLogger(XmlReaderService.class);
 
-    private final JAXBContext employeesContext;
-    private final JAXBContext projectsContext;
-
-    public XmlReaderService() throws JAXBException {
-        this.employeesContext = JAXBContext.newInstance(XmlEmployees.class);
-        this.projectsContext = JAXBContext.newInstance(XmlProjects.class);
-    }
-
-
-    public Optional<List<XmlEmployee>> readEmployees(String filePath) {
+    public <T> Optional<T> read(String filePath, Class<T> clazz, String schemaPath) {
         try {
             File file = new File(filePath);
             if (!file.exists()) {
-                logger.warn("Файл сотрудников не найден: {}", filePath);
+                logger.warn("XML файл не найден: {}", filePath);
                 return Optional.empty();
             }
+
             if (!file.canRead()) {
-                logger.error("Нет прав на чтение файла: {}", filePath);
+                logger.error("Нет прав на чтение XML файла: {}", filePath);
                 return Optional.empty();
             }
 
-            SchemaFactory schemaFactory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
-            Schema schema = schemaFactory.newSchema(new File("employees.xsd"));
+            JAXBContext jaxbContext = JAXBContext.newInstance(clazz);
+            Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
 
-            Unmarshaller unmarshaller = employeesContext.createUnmarshaller();
-            unmarshaller.setSchema(schema);
+            if (schemaPath != null && !schemaPath.trim().isEmpty()) {
+                File schemaFile = new File(schemaPath);
+                if (schemaFile.exists()) {
+                    SchemaFactory schemaFactory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
+                    Schema schema = schemaFactory.newSchema(schemaFile);
+                    unmarshaller.setSchema(schema);
+                    logger.debug("Применена XSD схема для валидации: {}", schemaPath);
+                } else {
+                    logger.warn("XSD схема не найдена: {}, валидация пропущена", schemaPath);
+                }
+            }
 
-            XmlEmployees xmlEmployees = (XmlEmployees) unmarshaller.unmarshal(file);
-            List<XmlEmployee> employees = xmlEmployees.getEmployees();
-            logger.info("Успешно прочитано {} сотрудников из файла: {}",
-                    employees != null ? employees.size() : 0, filePath);
-            return Optional.ofNullable(employees);
+            @SuppressWarnings("unchecked")
+            T result = (T) unmarshaller.unmarshal(file);
+
+            logger.info("Успешно прочитан XML файл: {} как {}", filePath, clazz.getSimpleName());
+            return Optional.of(result);
 
         } catch (SAXException e) {
-            logger.error("Ошибка валидации XSD для файла сотрудников: {}", filePath, e);
+            logger.error("Ошибка валидации XSD для файла: {}", filePath, e);
             return Optional.empty();
         } catch (JAXBException e) {
-            logger.error("Ошибка JAXB при чтении файла сотрудников: {}", filePath, e);
+            logger.error("Ошибка JAXB при чтении XML файла: {}", filePath, e);
             return Optional.empty();
         } catch (Exception e) {
-            logger.error("Общая ошибка при чтении файла сотрудников: {}", filePath, e);
+            logger.error("Общая ошибка при чтении XML файла: {}", filePath, e);
             return Optional.empty();
         }
     }
+    public <T> Optional<T> read(String filePath, Class<T> clazz) {
+        return read(filePath, clazz, null);
+    }
 
+    public Optional<List<XmlEmployee>> readEmployees(String filePath) {
+        Optional<XmlEmployees> xmlEmployees = read(filePath, XmlEmployees.class, "employees.xsd");
+        return xmlEmployees.map(XmlEmployees::getEmployees);
+    }
 
     public Optional<List<XmlProject>> readProjects(String filePath) {
-        try {
-            File file = new File(filePath);
-            if (!file.exists()) {
-                logger.warn("Файл проектов не найден: {}", filePath);
-                return Optional.empty();
-            }
-
-            if (!file.canRead()) {
-                logger.error("Нет прав на чтение файла: {}", filePath);
-                return Optional.empty();
-            }
-
-            Unmarshaller unmarshaller = projectsContext.createUnmarshaller();
-            XmlProjects xmlProjects = (XmlProjects) unmarshaller.unmarshal(file);
-
-            List<XmlProject> projects = xmlProjects.getProjects();
-            logger.info("Успешно прочитано {} проектов из файла: {}",
-                    projects != null ? projects.size() : 0, filePath);
-
-            return Optional.ofNullable(projects);
-
-        } catch (JAXBException e) {
-            logger.error("Ошибка JAXB при чтении файла проектов: {}", filePath, e);
-            return Optional.empty();
-        } catch (Exception e) {
-            logger.error("Общая ошибка при чтении файла проектов: {}", filePath, e);
-            return Optional.empty();
-        }
+        Optional<XmlProjects> xmlProjects = read(filePath, XmlProjects.class);
+        return xmlProjects.map(XmlProjects::getProjects);
     }
 
     public boolean isFileExists(String filePath) {
@@ -129,35 +110,10 @@ public class XmlReaderService {
     }
 
     public boolean isValidEmployeesXml(String filePath) {
-        try {
-            File file = new File(filePath);
-            if (!file.exists() || !file.canRead()) {
-                logger.debug("Файл сотрудников не существует или недоступен: {}", filePath);
-                return false;
-            }
-
-            SchemaFactory schemaFactory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
-            Schema schema = schemaFactory.newSchema(new File("employees.xsd"));
-            Unmarshaller unmarshaller = employeesContext.createUnmarshaller();
-            unmarshaller.setSchema(schema);
-            unmarshaller.unmarshal(file); // Только для валидации
-            return true;
-        } catch (SAXException e) {
-            logger.debug("Файл сотрудников не валиден по XSD: {}", filePath, e);
-            return false;
-        } catch (Exception e) {
-            logger.debug("Файл сотрудников не валиден: {}", filePath, e);
-            return false;
-        }
+        return read(filePath, XmlEmployees.class, "employees.xsd").isPresent();
     }
 
     public boolean isValidProjectsXml(String filePath) {
-        try {
-            return readProjects(filePath).isPresent();
-        } catch (Exception e) {
-            logger.debug("Файл проектов не валиден: {}", filePath, e);
-            return false;
-        }
+        return read(filePath, XmlProjects.class).isPresent();
     }
 }
-
